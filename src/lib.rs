@@ -1,5 +1,5 @@
 use serde::Serialize;
-use sqlx::{query::query, MySql};
+use sqlx::query::query;
 
 pub fn bulk_insert_query<T>(
     table: impl Into<String>,
@@ -49,7 +49,7 @@ mod tests {
     }
 
     #[test]
-    fn test_bulk_insert() {
+    fn test_bulk_insert_query() {
         let params = vec![
             Todo {
                 id: 1,
@@ -60,7 +60,7 @@ mod tests {
                 name: "test".to_string(),
             },
         ];
-        bulk_insert(
+        bulk_insert_query(
             "todos",
             vec!["id".to_string(), "name".to_string()],
             vec!["?".to_string(), "?".to_string()],
