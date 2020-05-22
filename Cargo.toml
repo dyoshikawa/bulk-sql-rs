@@ -5,6 +5,7 @@ authors = ["dyoshikawa <dyoshikawa@gmail.com>"]
 edition = "2018"
 keywords = ["bulk-insert", "sql"]
 description = "Generation a sql for bulk insert."
+repository = "https://github.com/dyoshikawa/bulk-sql-rs"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
