@@ -1,45 +1,70 @@
-use sqlx::query::query;
-use sqlx::{Pool, MySqlPool, Connection, query_as};
+use serde::Serialize;
+use sqlx::{query::query, MySql};
 
-// pub fn bulk_insert(insert_sql: impl Into<String>, value_sql: impl Into<String>, values: Vec<String>, pool: Pool<impl Connection>) {
-//     let insert_sql = insert_sql.into();
-//     let value_sql = value_sql.into();
-//
-//     let mut sql = insert_sql;
-//     for (i, value) in values.iter().enumerate() {
-//         sql.push_str(value_sql.clone().as_str());
-//     }
-//
-//     let q = query(sql.as_str());
-//     for (i, value) in values.iter().enumerate() {
-//
-//     }
-// }
+pub fn bulk_insert_query<T>(
+    table: impl Into<String>,
+    columns: Vec<String>,
+    values: Vec<String>,
+    params: Vec<T>,
+) where
+    T: Serialize,
+{
+    let table = table.into();
 
-#[macro_export]
-macro_rules! bulk_insert {
-    ($t:ty) => {
-        println!("ty: {}", stringify!($t));
+    let column_sql: String = columns.join(", ");
+    let mut sql = format!("INSERT INTO {} ({}) VALUES ", table, column_sql);
+    for i in 0..params.len() {
+        let value_sql: String = values.clone().join(", ");
+        sql.push_str(format!("({})", value_sql).as_str());
+        if i < params.len() - 1 {
+            sql.push_str(", ");
+        }
     }
-}
 
-struct Todo {
-    id: u64,
-    name: String,
+    let mut q = query::<MySql>(sql.as_str());
+    for p in params.iter() {
+        let val = serde_json::to_value(p).unwrap();
+        for col in columns.iter() {
+            let v = val.get(col).unwrap();
+            if let Some(casted) = v.as_u64() {
+                q = q.bind(casted);
+            } else if let Some(casted) = v.as_str() {
+                q = q.bind(casted);
+            } else {
+                panic!("aaa");
+            };
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(Debug)]
+    #[derive(Deserialize, Serialize)]
     struct Todo {
-        id: u64,
-        name: String,
+        pub id: u64,
+        pub name: String,
     }
 
     #[test]
-    fn it_works() {
-        bulk_insert!(Todo);
+    fn test_bulk_insert() {
+        let params = vec![
+            Todo {
+                id: 1,
+                name: "test".to_string(),
+            },
+            Todo {
+                id: 2,
+                name: "test".to_string(),
+            },
+        ];
+        bulk_insert(
+            "todos",
+            vec!["id".to_string(), "name".to_string()],
+            vec!["?".to_string(), "?".to_string()],
+            params,
+        );
     }
 }
