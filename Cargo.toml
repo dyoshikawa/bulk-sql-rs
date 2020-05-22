@@ -3,7 +3,7 @@ name = "bulk-sql-rs"
 version = "0.0.1"
 authors = ["dyoshikawa <dyoshikawa@gmail.com>"]
 edition = "2018"
-keywords = ["bulk insert", "sql"]
+keywords = ["bulk-insert", "sql"]
 description = "Generation a sql for bulk insert."
 license = "MIT"
 
