@@ -7,3 +7,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: foo
+  postgres:
+    image: postgres:alpine
+    ports:
+      - 5433:5432
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: foo
